@@ -19,3 +19,22 @@ df['date'] = pd.to_datetime(df['date'], unit='ms')
 df.set_index('date', inplace=True)
 df = df.sort_index(ascending=True)
 df.head()
+
+####
+import requests
+import pandas as pd
+
+def get_binance_coins():
+    url = "https://api.binance.com/api/v3/ticker/price"
+    response = requests.get(url)
+    data = response.json()
+    return [(item['symbol'], item['price']) for item in data]
+
+try:
+    coin_data = get_binance_coins()
+    df = pd.DataFrame(coin_data, columns=["Symbol", "Price"])
+    df.index += 1
+    df.index.name = "Row Number"
+    print(df.head())  # Display the first 5 rows
+except requests.exceptions.RequestException as e:
+    print(f"Error fetching data: {e}")
